@@ -183,16 +183,12 @@ try:
         #selected by default, remove
         browser.find_element_by_id("gear-checkbox-silver").click()
 
-        print(colors)
-
         for c in colors:
             browser.find_element_by_id("gear-tshirt-image").click()
             time.sleep(.25)
             if c == "royal_blue": #color called royal blue in the tooltip but is identified by 'royal'
-                print('royal : '+ c)
                 n = "royal"
             else:
-                print(c)
                 n = c.lower()
 
             browser.find_element_by_id("gear-checkbox-"+n).click()
