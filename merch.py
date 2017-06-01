@@ -106,14 +106,21 @@ try:
 
         browser.get('http://merch.amazon.com/merch-tshirt/title-setup/new/upload_art')
 
-        try:
-            emailElem = browser.find_element_by_id('ap_email')
-            emailElem.send_keys(userEmail)
-            passwordElem = browser.find_element_by_id('ap_password')
-            passwordElem.send_keys(userPass)
-            passwordElem.submit()
-        except:
-            pass
+        #log in if credentials are supplied in the CSV
+        if bool(userEmail.strip()) and bool(userPass.strip()):
+            try:
+                emailElem = browser.find_element_by_id('ap_email')
+                emailElem.send_keys(userEmail)
+                passwordElem = browser.find_element_by_id('ap_password')
+                passwordElem.send_keys(userPass)
+                passwordElem.submit()
+            except:
+                pass
+        
+        #wait to get past login screen, either by automatic login or by user logging in
+        WebDriverWait(
+                    browser, 90
+            ).until(EC.presence_of_element_located((By.ID, 'data-draft-tshirt-assets-front-image-asset-cas-file-upload-AjaxInput')))
 
         #upload file
         browser.find_element_by_id("data-draft-tshirt-assets-front-image-asset-cas-file-upload-AjaxInput").send_keys(os.getcwd()+"\\"+s['file'])
