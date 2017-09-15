@@ -118,25 +118,25 @@ try:
                 pass
         
         #wait to get past login screen, either by automatic login or by user logging in
-        WebDriverWait(
+       WebDriverWait(
                     browser, 90
-            ).until(EC.presence_of_element_located((By.ID, 'data-draft-tshirt-assets-front-image-asset-cas-file-upload-AjaxInput')))
+            ).until(EC.presence_of_element_located((By.ID, 'data-draft-tshirt-assets-front-image-asset-cas-shirt-art-image-file-upload-AjaxInput')))
 
         #upload file
-        browser.find_element_by_id("data-draft-tshirt-assets-front-image-asset-cas-file-upload-AjaxInput").send_keys(os.getcwd()+"\\"+s['file'])
+        browser.find_element_by_id("data-draft-tshirt-assets-front-image-asset-cas-shirt-art-image-file-upload-AjaxInput").send_keys(os.getcwd()+"\\"+s['file'])
 
         try:
             print("waiting for processing message to appear")
             WebDriverWait(
                     browser, 60
-            ).until_not(EC.presence_of_element_located((By.CSS_SELECTOR, '#data-draft-tshirt-assets-front-image-asset-cas-file-upload-uploading-message.a-hidden')))
+            ).until_not(EC.presence_of_element_located((By.CSS_SELECTOR, '#data-draft-tshirt-assets-front-image-asset-cas-shirt-art-image-file-upload-uploading-message.a-hidden')))
 
             print("waiting for processing message to disappear")
             WebDriverWait(
                     browser, 60
-            ).until(EC.presence_of_element_located((By.CSS_SELECTOR, '#data-draft-tshirt-assets-front-image-asset-cas-file-upload-uploading-message.a-hidden')))
+            ).until(EC.presence_of_element_located((By.CSS_SELECTOR, '#data-draft-tshirt-assets-front-image-asset-cas-shirt-art-image-file-upload-uploading-message.a-hidden')))
 
-            time.sleep(3)
+            time.sleep(4)
 
             print("clicking continue")
             browser.find_element_by_id("save-and-continue-upload-art-announce").click()
