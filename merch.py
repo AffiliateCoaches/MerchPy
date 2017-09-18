@@ -118,7 +118,7 @@ try:
                 pass
         
         #wait to get past login screen, either by automatic login or by user logging in
-       WebDriverWait(
+        WebDriverWait(
                     browser, 90
             ).until(EC.presence_of_element_located((By.ID, 'data-draft-tshirt-assets-front-image-asset-cas-shirt-art-image-file-upload-AjaxInput')))
 
