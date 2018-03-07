@@ -17,7 +17,7 @@ def write_leftovers(head, shirts, newfile = False):
                     for x in shirts:
                         writer.writerow(x)
 
-daily_limit = 10
+daily_limit = 200
 
 with open('merchpy.csv', 'r') as f:
     reader = csv.reader(f)
@@ -122,26 +122,72 @@ try:
                     browser, 90
             ).until(EC.presence_of_element_located((By.ID, 'data-draft-tshirt-assets-front-image-asset-cas-shirt-art-image-file-upload-AjaxInput')))
 
+        #select shirt type
+        typeSelect = Select(browser.find_element_by_id("data-draft-shirt-type-native"))
+        if s['type'].upper() == "STANDARD":
+            typeSelect.select_by_value("HOUSE_BRAND")
+        elif s['type'].upper() == "PREMIUM":
+            typeSelect.select_by_value("PREMIUM_BRAND")
+        elif s['type'].upper() == "LONGSLEEVE":
+            typeSelect.select_by_value("STANDARD_LONG_SLEEVE")
+        elif s['type'].upper() == "SWEATSHIRT":
+            typeSelect.select_by_value("STANDARD_SWEATSHIRT")
+        elif s['type'].upper() == "HOODIE":
+            typeSelect.select_by_value("STANDARD_PULLOVER_HOODIE")
+        else:
+            typeSelect.select_by_value("HOUSE_BRAND")
+
         #upload file
-        browser.find_element_by_id("data-draft-tshirt-assets-front-image-asset-cas-shirt-art-image-file-upload-AjaxInput").send_keys(os.getcwd()+"\\"+s['file'])
+        #HOODIE has different selectors so if statement is necessary and handled first
+        if s['type'].upper() == "HOODIE":
+            browser.find_element_by_id("data-draft-tshirt-assets-front-image-asset-cas-hoodie-art-image-file-upload-AjaxInput").send_keys(os.getcwd()+"\\"+s['file'])
 
-        try:
-            print("waiting for processing message to appear")
-            WebDriverWait(
-                    browser, 60
-            ).until_not(EC.presence_of_element_located((By.CSS_SELECTOR, '#data-draft-tshirt-assets-front-image-asset-cas-shirt-art-image-file-upload-uploading-message.a-hidden')))
+            try:
+                print("waiting for processing message to appear")
+                WebDriverWait(
+                        browser, 180
+                ).until_not(EC.presence_of_element_located((By.CSS_SELECTOR, '#data-draft-tshirt-assets-front-image-asset-cas-hoodie-art-image-file-upload-uploading-message.a-hidden')))
 
-            print("waiting for processing message to disappear")
-            WebDriverWait(
-                    browser, 60
-            ).until(EC.presence_of_element_located((By.CSS_SELECTOR, '#data-draft-tshirt-assets-front-image-asset-cas-shirt-art-image-file-upload-uploading-message.a-hidden')))
+                print("waiting for processing message to disappear")
+                WebDriverWait(
+                        browser, 180
+                ).until(EC.presence_of_element_located((By.CSS_SELECTOR, '#data-draft-tshirt-assets-front-image-asset-cas-hoodie-art-image-file-upload-uploading-message.a-hidden')))
 
-            time.sleep(4)
+                time.sleep(4)
 
-            print("clicking continue")
-            browser.find_element_by_id("save-and-continue-upload-art-announce").click()
-        except:
-            print("timed out looking")
+                print(s['title'] + " - file upload complete (file = " + s['file'] + ")")
+            
+
+            #click continue after upload
+                browser.find_element_by_id("save-and-continue-upload-art-announce").click()
+            except:
+                print("timed out looking")
+
+        #upload file (still)
+        #Handle the rest of merch types after hoodie
+        else:
+            browser.find_element_by_id("data-draft-tshirt-assets-front-image-asset-cas-shirt-art-image-file-upload-AjaxInput").send_keys(os.getcwd()+"\\"+s['file'])
+
+            try:
+                print("waiting for processing message to appear")
+                WebDriverWait(
+                        browser, 180
+                ).until_not(EC.presence_of_element_located((By.CSS_SELECTOR, '#data-draft-tshirt-assets-front-image-asset-cas-shirt-art-image-file-upload-uploading-message.a-hidden')))
+
+                print("waiting for processing message to disappear")
+                WebDriverWait(
+                        browser, 180
+                ).until(EC.presence_of_element_located((By.CSS_SELECTOR, '#data-draft-tshirt-assets-front-image-asset-cas-shirt-art-image-file-upload-uploading-message.a-hidden')))
+
+                time.sleep(4)
+
+                print(s['title'] + " - file upload complete (file = " + s['file'] + ")")
+            
+
+            #click continue after upload
+                browser.find_element_by_id("save-and-continue-upload-art-announce").click()
+            except:
+                print("timed out looking")
 
         WebDriverWait(
                     browser, 20
@@ -152,36 +198,27 @@ try:
         priceElem.clear()
         priceElem.send_keys(s['price'])
 
-        #select shirt type
-        typeSelect = Select(browser.find_element_by_id("data-draft-shirt-type-native"))
-        if s['type'].upper() == "ANVIL":
-            typeSelect.select_by_value("HOUSE_BRAND")
-        elif s['type'].upper() == "PREMIUM":
-            typeSelect.select_by_value("PREMIUM_BRAND")
-        else:
-            typeSelect.select_by_value("HOUSE_BRAND")
-
         #fit type
         fits = s['fit'].split(",")
         fits = [x.strip(' ') for x in fits]
 
-        WebDriverWait(
-                    browser, 20
-            ).until(EC.visibility_of_element_located((By.ID, 'data-shirt-configurations-fit-type-men')))
-        #men and women selected by default, do opposite
-        if not any(f in fits for f in ["MEN","MENS"]):
-            browser.find_element_by_id("data-shirt-configurations-fit-type-men").send_keys(selenium.webdriver.common.keys.Keys.SPACE)
-        if not any(f in fits for f in ["WOMEN","WOMENS"]):
-            browser.find_element_by_id("data-shirt-configurations-fit-type-women").send_keys(selenium.webdriver.common.keys.Keys.SPACE)
-        if any(f in fits for f in ["YOUTH","YOUTHS","KID","KIDS"]):
-            browser.find_element_by_id("data-shirt-configurations-fit-type-youth").send_keys(selenium.webdriver.common.keys.Keys.SPACE)
+        if s['type'].upper() == "LONGSLEEVE" or s['type'].upper() == "SWEATSHIRT" or s['type'].upper() == "HOODIE":
+            pass
+        else:
+            WebDriverWait(
+                        browser, 20
+                ).until(EC.visibility_of_element_located((By.ID, 'data-shirt-configurations-fit-type-men')))
+            #men and women selected by default, do opposite
+            if not any(f in fits for f in ["MEN","MENS"]):
+                browser.find_element_by_id("data-shirt-configurations-fit-type-men").send_keys(selenium.webdriver.common.keys.Keys.SPACE)
+            if not any(f in fits for f in ["WOMEN","WOMENS"]):
+                browser.find_element_by_id("data-shirt-configurations-fit-type-women").send_keys(selenium.webdriver.common.keys.Keys.SPACE)
+            if any(f in fits for f in ["YOUTH","YOUTHS","KID","KIDS"]):
+                browser.find_element_by_id("data-shirt-configurations-fit-type-youth").send_keys(selenium.webdriver.common.keys.Keys.SPACE)
 
         #do colors
         colors = s['color'].split(",")
         colors = [x.strip().replace(" ","_").replace("-","_").lower() for x in colors]
-
-        #selected by default, remove
-        browser.find_element_by_id("gear-checkbox-silver").click()
 
         for c in colors:
             browser.find_element_by_id("gear-tshirt-image").click()
@@ -192,6 +229,8 @@ try:
                 n = c.lower()
 
             browser.find_element_by_id("gear-checkbox-"+n).click()
+
+        print(s['title'] + " - colors and fit type complete (file = " + s['file'] + ")")
 
         #continue
         browser.find_element_by_id("save-and-continue-choose-variations-announce").click()
@@ -208,6 +247,8 @@ try:
         browser.find_element_by_id('data-draft-description-en-us').send_keys(s['desc'])
         browser.find_element_by_id("save-and-continue-announce").click()
 
+        print(s['title'] + " - brand, title, desc complete (file = " + s['file'] + ")")
+
         WebDriverWait(
                     browser, 20
             ).until(EC.presence_of_element_located((By.ID, 'publish-announce')))
@@ -218,6 +259,8 @@ try:
         browser.find_element_by_id("publish-announce").click()
         time.sleep(4)
         browser.execute_script("document.getElementById('publish-confirm-button-announce').click();")
+
+        print(s['title'] + " reviewed and submitted (file = " + s['file'] + ")")
         
         WebDriverWait(
                     browser, 60
@@ -228,7 +271,7 @@ try:
 
 finally:
     browser.close()
-
+    
     with open('completed/completed.csv','a') as f:
         writer=csv.writer(f, lineterminator='\n')
         for x in finished_shirts:
